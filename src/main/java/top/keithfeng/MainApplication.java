@@ -34,6 +34,14 @@ public class MainApplication {
      */
     public static void main(String[] args) {
         SpringApplication.run(MainApplication.class, args);
+        System.out.println("\n" +
+                " __  ___  _______  __  .___________. __    __  \n" +
+                "|  |/  / |   ____||  | |           ||  |  |  | \n" +
+                "|  '  /  |  |__   |  | `---|  |----`|  |__|  | \n" +
+                "|    <   |   __|  |  |     |  |     |   __   | \n" +
+                "|  .  \\  |  |____ |  |     |  |     |  |  |  | \n" +
+                "|__|\\__\\ |_______||__|     |__|     |__|  |__| \n\n" +
+                "=========== Bilibili-QQ-Bot 已启动 ===========");
     }
 }
 
