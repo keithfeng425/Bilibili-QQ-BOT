@@ -49,6 +49,7 @@ public class DynamicUtil {
     private OriginBotManager botManager = null;
 
     private static String CLASS_PATH = null;
+
     static {
         try {
             CLASS_PATH = ResourceUtils.getFile("").getAbsolutePath() + "/";
@@ -90,7 +91,13 @@ public class DynamicUtil {
         JSONObject origin = cardObject.getJSONObject("origin");
         if (item != null && origin == null) {
             String content = item.getStr("description");
+            if (content == null) {
+                content = item.getStr("content");
+            }
             String username = cardObject.getJSONObject("user").getStr("name");
+            if (username == null) {
+                username = cardObject.getJSONObject("user").getStr("uname");
+            }
             long time;
             try {
                 time = item.getLong("timestamp") * 1000;
@@ -99,22 +106,29 @@ public class DynamicUtil {
             }
             Timestamp timestamp = new Timestamp(time);
             String datetime = DateUtil.format(timestamp, "yyyy-MM-dd HH:mm:ss");
-            Object pictures = item.getJSONArray("pictures").get(0);
-            String imgSrc = ((JSONObject) pictures).getStr("img_src");
-            HttpUtil.downloadFile(imgSrc, CLASS_PATH + "dynamic.jpg");
+            JSONArray picArray = item.getJSONArray("pictures");
+            String imgSrc = null;
+            if (picArray != null) {
+                Object pictures = picArray.get(0);
+                imgSrc = ((JSONObject) pictures).getStr("img_src");
+                HttpUtil.downloadFile(imgSrc, CLASS_PATH + "dynamic.jpg");
+            }
             System.out.println(username + " 于 " + datetime + " 发表了新动态：\n" + content);
-            System.out.println(imgSrc);
-            FileResource imgResource = Resource.of(new File(CLASS_PATH + "dynamic.jpg"));
 
             MessagesBuilder messages = new MessagesBuilder()
                     .append(username)
                     .append(" 于 ")
                     .append(datetime)
                     .append(" 发表了新动态：\n")
-                    .append(content)
-                    .append("\n")
-                    .image(imgResource)
-                    .append("\n")
+                    .append(content);
+            if (imgSrc != null) {
+                System.out.println(imgSrc);
+                FileResource imgResource = Resource.of(new File(CLASS_PATH + "dynamic.jpg"));
+                messages.append("\n")
+                        .image(imgResource);
+            }
+
+            messages.append("\n")
                     .append(dynamicLink);
             Messages message = messages.build();
             group.sendBlocking(message);
@@ -212,19 +226,31 @@ public class DynamicUtil {
 
             if (originOwner == null) {
 
+                System.out.println(origin);
+
                 JSONObject originUser = origin.getJSONObject("user");
                 if (originUser != null) {
                     String originName = originUser.getStr("name");
+                    if (originName == null) {
+                        originName = originUser.getStr("uname");
+                    }
                     String originContent = origin.getJSONObject("item").getStr("description");
+                    if (originContent == null) {
+                        originContent = origin.getJSONObject("item").getStr("content");
+                    }
 
                     JSONArray pictures = origin.getJSONObject("item").getJSONArray("pictures");
-                    JSONObject imgObject = pictures.getJSONObject(0);
-                    String imgSrc = imgObject.getStr("img_src");
-
+                    String imgSrc = null;
+                    if (pictures != null) {
+                        JSONObject imgObject = pictures.getJSONObject(0);
+                        imgSrc = imgObject.getStr("img_src");
+                    }
                     System.out.println(username + " 于 " + datetime + " 转发了 " + originName + " 的动态：");
                     System.out.println(originContent);
                     System.out.println("UP主留言：" + content);
-                    System.out.println(imgSrc);
+                    if (pictures != null) {
+                        System.out.println(imgSrc);
+                    }
 
                     MessagesBuilder messages = new MessagesBuilder()
                             .append(username)
@@ -240,15 +266,19 @@ public class DynamicUtil {
                             .append(content)
                             .append("\n");
 
-                    HttpUtil.downloadFile(imgSrc, CLASS_PATH + "dynamic.jpg");
-                    FileResource imgResource = Resource.of(new File(CLASS_PATH + "dynamic.jpg"));
-                    messages.image(imgResource)
-                            .append("\n")
-                            .append(dynamicLink);
+                    if (pictures != null) {
+                        HttpUtil.downloadFile(imgSrc, CLASS_PATH + "dynamic.jpg");
+                        FileResource imgResource = Resource.of(new File(CLASS_PATH + "dynamic.jpg"));
+                        messages.image(imgResource)
+                                .append("\n");
+                    }
+                    messages.append(dynamicLink);
                     Messages message = messages.build();
                     group.sendBlocking(message);
-                    // 删除临时图片
-                    FileUtil.del(CLASS_PATH + "dynamic.jpg");
+                    if (pictures != null) {
+                        // 删除临时图片
+                        FileUtil.del(CLASS_PATH + "dynamic.jpg");
+                    }
                     // 插入数据库
                     dynamicHistoryMapper.insert(new DynamicHistory(dynamicId, "转发动态", message));
                 } else {
