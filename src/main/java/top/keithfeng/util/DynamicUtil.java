@@ -225,9 +225,6 @@ public class DynamicUtil {
             String datetime = DateUtil.format(timestamp, "yyyy-MM-dd HH:mm:ss");
 
             if (originOwner == null) {
-
-                System.out.println(origin);
-
                 JSONObject originUser = origin.getJSONObject("user");
                 if (originUser != null) {
                     String originName = originUser.getStr("name");
