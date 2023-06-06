@@ -1,3 +1,6 @@
+server:
+  port: 9435
+
 simbot:
   bot-configuration-resources:
     - 'classpath:simbot-bots/*.bot*' # 资源路径中的文件
@@ -6,7 +9,7 @@ simbot:
 spring:
   datasource:
     driver-class-name: org.sqlite.JDBC
-#    url: jdbc:sqlite:E:/GitProject/simbot-bilibili/src/main/resources/db/test.db
+#    url: jdbc:sqlite:E:/GitProject/Bilibili-QQ-BOT/src/main/resources/db/test.db
     url: jdbc:sqlite::resource:db/history.db
 
 mybatis:
