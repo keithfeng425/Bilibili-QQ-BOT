@@ -1,0 +1,23 @@
+simbot:
+  bot-configuration-resources:
+    - 'classpath:simbot-bots/*.bot*' # 资源路径中的文件
+    - 'file:simbot-bots/*.bot*'      # 本地文件系统中的文件
+
+spring:
+  datasource:
+    driver-class-name: org.sqlite.JDBC
+#    url: jdbc:sqlite:E:/GitProject/simbot-bilibili/src/main/resources/db/test.db
+    url: jdbc:sqlite::resource:db/history.db
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+
+# 打印SQL语句
+#logging:
+#  level:
+#    top.keithfeng.mapper: debug
+
+# 设置需要订阅的主播和群号
+bilibili:
+  uid: 1566071
+  group: 1030444096

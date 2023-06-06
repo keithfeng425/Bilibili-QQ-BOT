@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.keithfeng.mapper.DynamicHistoryMapper">
+
+    <resultMap id="BaseResultMap" type="top.keithfeng.domain.DynamicHistory">
+            <id property="dynamicId" column="dynamic_id" jdbcType="OTHER"/>
+            <result property="type" column="type" jdbcType="VARCHAR"/>
+            <result property="message" column="message" jdbcType="VARCHAR"/>
+            <result property="createTime" column="create_time" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        dynamic_id,type,message,
+        create_time
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from dynamic_history
+        where  dynamic_id = #{dynamicId,jdbcType=OTHER} 
+    </select>
+
+    <select id="selectAll" resultType="top.keithfeng.domain.DynamicHistory">
+        select
+        <include refid="Base_Column_List" />
+        from dynamic_history
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        delete from dynamic_history
+        where  dynamic_id = #{dynamicId,jdbcType=OTHER} 
+    </delete>
+    <insert id="insert" keyColumn="dynamic_id" keyProperty="dynamicId" parameterType="top.keithfeng.domain.DynamicHistory" useGeneratedKeys="true">
+        insert into dynamic_history
+        ( dynamic_id,type,message
+        ,create_time)
+        values (#{dynamicId,jdbcType=OTHER},#{type,jdbcType=VARCHAR},#{message,jdbcType=VARCHAR}
+        ,#{createTime,jdbcType=VARCHAR})
+    </insert>
+    <insert id="insertSelective" keyColumn="dynamic_id" keyProperty="dynamicId" parameterType="top.keithfeng.domain.DynamicHistory" useGeneratedKeys="true">
+        insert into dynamic_history
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="dynamicId != null">dynamic_id,</if>
+                <if test="type != null">type,</if>
+                <if test="message != null">message,</if>
+                <if test="createTime != null">create_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+                <if test="dynamicId != null">#{dynamicId,jdbcType=OTHER},</if>
+                <if test="type != null">#{type,jdbcType=VARCHAR},</if>
+                <if test="message != null">#{message,jdbcType=VARCHAR},</if>
+                <if test="createTime != null">#{createTime,jdbcType=VARCHAR},</if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="top.keithfeng.domain.DynamicHistory">
+        update dynamic_history
+        <set>
+                <if test="type != null">
+                    type = #{type,jdbcType=VARCHAR},
+                </if>
+                <if test="message != null">
+                    message = #{message,jdbcType=VARCHAR},
+                </if>
+                <if test="createTime != null">
+                    create_time = #{createTime,jdbcType=VARCHAR},
+                </if>
+        </set>
+        where   dynamic_id = #{dynamicId,jdbcType=OTHER} 
+    </update>
+    <update id="updateByPrimaryKey" parameterType="top.keithfeng.domain.DynamicHistory">
+        update dynamic_history
+        set 
+            type =  #{type,jdbcType=VARCHAR},
+            message =  #{message,jdbcType=VARCHAR},
+            create_time =  #{createTime,jdbcType=VARCHAR}
+        where   dynamic_id = #{dynamicId,jdbcType=OTHER} 
+    </update>
+</mapper>
