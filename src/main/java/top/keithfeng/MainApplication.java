@@ -1,8 +1,10 @@
 package top.keithfeng;
 
 import love.forte.simboot.spring.autoconfigure.EnableSimbot;
+import love.forte.simbot.bot.OriginBotManager;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
@@ -42,6 +44,11 @@ public class MainApplication {
                 "|  .  \\  |  |____ |  |     |  |     |  |  |  | \n" +
                 "|__|\\__\\ |_______||__|     |__|     |__|  |__| \n\n" +
                 "=========== Bilibili-QQ-Bot 已启动 ===========");
+    }
+
+    @Bean
+    public OriginBotManager getBotManager() {
+        return OriginBotManager.INSTANCE;
     }
 }
 

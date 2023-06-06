@@ -18,22 +18,18 @@ import love.forte.simbot.resources.FileResource;
 import love.forte.simbot.resources.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.event.ApplicationStartedEvent;
-import org.springframework.context.ApplicationListener;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ResourceUtils;
 import top.keithfeng.domain.DynamicHistory;
 import top.keithfeng.mapper.DynamicHistoryMapper;
 
-import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.sql.Timestamp;
 
 @Slf4j
 @Component
-// public class DynamicUtil implements ApplicationListener<ApplicationStartedEvent> {
 public class DynamicUtil {
 
     @Autowired
@@ -45,8 +41,8 @@ public class DynamicUtil {
     @Value("${bilibili.group}")
     private Long groupId;
 
-    private Bot bot = null;
-    private OriginBotManager botManager = null;
+    @Autowired
+    private OriginBotManager botManager;
 
     private static String CLASS_PATH = null;
 
@@ -54,22 +50,17 @@ public class DynamicUtil {
         try {
             CLASS_PATH = ResourceUtils.getFile("").getAbsolutePath() + "/";
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            log.error("获取工作目录失败！");
         }
-    }
-
-    @PostConstruct
-    public void init() {
-        botManager = OriginBotManager.INSTANCE;
     }
 
     @SneakyThrows
     @Scheduled(fixedDelay = 3000)
     public void bilibiliListener() {
-        bot = botManager.getAnyBot();
-        String spaceApi = "https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/space_history?host_uid=" + uid + "&need_top=0";
+        Bot bot = botManager.getAnyBot();
         Group group = bot.getGroup(ID.$(groupId));
 
+        String spaceApi = "https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/space_history?host_uid=" + uid + "&need_top=0";
         String response = HttpUtil.createGet(spaceApi)
                 .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36")
                 .execute().body();
