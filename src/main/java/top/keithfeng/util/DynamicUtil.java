@@ -367,6 +367,8 @@ public class DynamicUtil {
                         .append(dynamicLink);
                 Messages message = messages.build();
                 group.sendBlocking(message);
+                // 删除临时图片
+                FileUtil.del(CLASS_PATH + "repost.jpg");
                 // 插入数据库
                 dynamicHistoryMapper.insert(new DynamicHistory(dynamicId, "转发投稿", message));
             }
