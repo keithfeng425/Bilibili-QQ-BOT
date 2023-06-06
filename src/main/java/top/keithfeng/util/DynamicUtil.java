@@ -1,6 +1,7 @@
 package top.keithfeng.util;
 
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
@@ -117,6 +118,8 @@ public class DynamicUtil {
                     .append(dynamicLink);
             Messages message = messages.build();
             group.sendBlocking(message);
+            // 删除临时图片
+            FileUtil.del(CLASS_PATH + "dynamic.jpg");
             // 插入数据库
             dynamicHistoryMapper.insert(new DynamicHistory(dynamicId, "动态", message));
 
@@ -155,6 +158,8 @@ public class DynamicUtil {
                         .image(imgResource);
                 Messages message = messages.build();
                 group.sendBlocking(message);
+                // 删除临时图片
+                FileUtil.del(CLASS_PATH + "cover.jpg");
                 // 插入数据库
                 dynamicHistoryMapper.insert(new DynamicHistory(dynamicId, "投稿", message));
             } else {
@@ -190,6 +195,8 @@ public class DynamicUtil {
                         .append(dynamicLink);
                 Messages message = messages.build();
                 group.sendBlocking(message);
+                // 删除临时图片
+                FileUtil.del(CLASS_PATH + "column.jpg");
                 // 插入数据库
                 dynamicHistoryMapper.insert(new DynamicHistory(dynamicId, "专栏", message));
             }
@@ -240,6 +247,8 @@ public class DynamicUtil {
                             .append(dynamicLink);
                     Messages message = messages.build();
                     group.sendBlocking(message);
+                    // 删除临时图片
+                    FileUtil.del(CLASS_PATH + "dynamic.jpg");
                     // 插入数据库
                     dynamicHistoryMapper.insert(new DynamicHistory(dynamicId, "转发动态", message));
                 } else {
@@ -275,6 +284,8 @@ public class DynamicUtil {
                                 .image(imgResource);
                         Messages message = messages.build();
                         group.sendBlocking(message);
+                        // 删除临时图片
+                        FileUtil.del(CLASS_PATH + "cover.jpg");
                         // 插入数据库
                         dynamicHistoryMapper.insert(new DynamicHistory(dynamicId, "转发直播", message));
                     } else {
@@ -313,6 +324,8 @@ public class DynamicUtil {
                                 .append(dynamicLink);
                         Messages message = messages.build();
                         group.sendBlocking(message);
+                        // 删除临时图片
+                        FileUtil.del(CLASS_PATH + "column.jpg");
                         // 插入数据库
                         dynamicHistoryMapper.insert(new DynamicHistory(dynamicId, "转发专栏", message));
                     }
