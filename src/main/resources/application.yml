@@ -25,3 +25,8 @@ bilibili:
   uid: 1566071
   group: 1030444096
   room: 28464
+
+# ChatGPT APIKey
+gpt:
+  use-api2d: true
+  api-key:

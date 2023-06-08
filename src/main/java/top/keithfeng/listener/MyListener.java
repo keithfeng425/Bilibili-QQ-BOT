@@ -1,19 +1,31 @@
 package top.keithfeng.listener;
 
 
+import cn.hutool.core.util.CharsetUtil;
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.http.HttpRequest;
+import cn.hutool.http.HttpResponse;
+import cn.hutool.http.HttpUtil;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
+import lombok.extern.slf4j.Slf4j;
 import love.forte.simboot.annotation.ContentTrim;
 import love.forte.simboot.annotation.Filter;
 import love.forte.simboot.annotation.Listener;
 import love.forte.simbot.definition.Friend;
 import love.forte.simbot.event.EventResult;
 import love.forte.simbot.event.FriendMessageEvent;
-import love.forte.simbot.message.Image;
-import love.forte.simbot.message.Messages;
-import love.forte.simbot.message.MessagesBuilder;
-import love.forte.simbot.message.ReceivedMessageContent;
+import love.forte.simbot.event.GroupMessageEvent;
+import love.forte.simbot.message.*;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Element;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -23,8 +35,87 @@ import java.util.concurrent.CompletableFuture;
  *
  * @author ForteScarlet
  */
+@Slf4j
 @Component
 public class MyListener {
+
+    @Value("${gpt.api-key}")
+    private String gptApiKey;
+
+    @Value("${gpt.use-api2d}")
+    private boolean useApi2d;
+
+    public String sendMessageToChatGpt(String textContent) {
+        if (StrUtil.isEmpty(gptApiKey)) {
+            log.warn("未填写ChatGPT APIKey，将调用青云客API进行回复……");
+            String qykApi = "http://api.qingyunke.com/api.php?key=free&appid=0&msg=" + textContent;
+            HttpResponse response = HttpUtil.createGet(qykApi).execute();
+            JSONObject responseBody = JSONUtil.parseObj(response.body());
+            return responseBody.getStr("content");
+        }
+        String apiUrl;
+        if (useApi2d) {
+            apiUrl = "https://openai.api2d.net/v1/chat/completions";
+            log.info("[ChatGpt] 使用API2D代理服务中……");
+        } else {
+            apiUrl = "https://api.openai.com/v1/chat/completions";
+            log.info("[ChatGpt] 使用OpenAI官方服务中……");
+        }
+
+        Map<String, Object> requestBody = new HashMap<>(2);
+        requestBody.put("model", "gpt-3.5-turbo");
+        List<Map<String,String>> messageList = new ArrayList<>();
+        Map<String, String> messageMap = new HashMap<>(2);
+        messageMap.put("role", "user");
+        messageMap.put("content", textContent);
+        messageList.add(messageMap);
+        requestBody.put("messages", messageList);
+
+        Element body;
+        try {
+            body = Jsoup.connect(apiUrl)
+                    .ignoreContentType(true)
+                    .timeout(100000)
+                    .header("Authorization", "Bearer " + gptApiKey)
+                    .header("Content-Type", "application/json")
+                    .requestBody(JSONUtil.toJsonStr(requestBody))
+                    .post().body();
+        } catch (Exception e) {
+            log.error("[ChatGPT] 服务异常，请检查网络……", e);
+            return "[ChatGPT] 我的信号不太好，暂时没办法回复你哦……";
+        }
+
+        JSONObject responseBody = JSONUtil.parseObj(body.text());
+        JSONObject choice = responseBody.getJSONArray("choices").get(0, JSONObject.class);
+        String answer = choice.getJSONObject("message").getStr("content");
+        System.out.println("[ChatGPT] " + answer);
+        return "[ChatGPT] " + answer;
+    }
+
+
+    @Listener
+    @ContentTrim
+    public void groupMessageListener(GroupMessageEvent event) {
+        Messages messages = event.getMessageContent().getMessages();
+        boolean isTarget = false;
+        for (Message.Element<?> message : messages) {
+            if (message instanceof At && event.getBot().getId().equals(((At) message).getTarget())) {
+                isTarget = true;
+            }
+        }
+        if (isTarget) {
+            StringBuffer buffer = new StringBuffer();
+            for (Message.Element<?> message : messages) {
+                if (message instanceof Text) {
+                    String text = ((Text) message).getText();
+                    buffer.append(text.trim()).append(" ");
+                }
+            }
+            String textContent = buffer.toString();
+            event.replyAsync(sendMessageToChatGpt(textContent));
+
+        }
+    }
 
     /**
      * 这个监听函数我们实现：
