@@ -50,6 +50,20 @@ public class LiveUtil {
         }
     }
 
+    public JSONObject getRoomInfo(String roomLink) {
+        try {
+            String body = HttpUtil.createGet(roomLink)
+                    .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36")
+                    .execute().body();
+
+            String jsonStr = body.split("NEPTUNE_IS_MY_WAIFU__=")[2].split("</script><script>")[0];
+            return JSONUtil.parseObj(jsonStr);
+        } catch (ArrayIndexOutOfBoundsException e) {
+            log.warn("页面读取有误，3秒后重试……");
+            return null;
+        }
+    }
+
     @SneakyThrows
     @Scheduled(fixedDelay = 3000)
     public void liveRoomListener() {
@@ -63,17 +77,7 @@ public class LiveUtil {
                     .execute().body();
             JSONObject mainBody = JSONUtil.parseObj(response);
             int liveStatus = mainBody.getJSONObject("data").getInt("live_status");
-
             String roomLink = "https://live.bilibili.com/" + roomId;
-            String body = HttpUtil.createGet(roomLink)
-                    .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36")
-                    .execute().body();
-
-            String jsonStr = body.split("NEPTUNE_IS_MY_WAIFU__=")[2].split("</script><script>")[0];
-            JSONObject mainContent = JSONUtil.parseObj(jsonStr);
-
-            JSONObject anchorInfo = mainContent.getJSONObject("roomInfoRes").getJSONObject("data").getJSONObject("anchor_info");
-            String username = anchorInfo.getJSONObject("base_info").getStr("uname");
 
             switch (liveStatus) {
                 case 1:
@@ -82,6 +86,10 @@ public class LiveUtil {
                     } else {
                         // 修改直播状态为真，输出通知
                         liveFlag = true;
+
+                        JSONObject mainContent = getRoomInfo(roomLink);
+                        JSONObject anchorInfo = mainContent.getJSONObject("roomInfoRes").getJSONObject("data").getJSONObject("anchor_info");
+                        String username = anchorInfo.getJSONObject("base_info").getStr("uname");
                         JSONObject roomInfo = mainContent.getJSONObject("roomInfoRes").getJSONObject("data").getJSONObject("room_info");
                         String title = roomInfo.getStr("title");
                         String imgSrc = UnicodeUtil.toString(roomInfo.getStr("cover"));
@@ -125,6 +133,10 @@ public class LiveUtil {
                     } else {
                         // 修改直播状态为假，输出通知
                         liveFlag = false;
+
+                        JSONObject mainContent = getRoomInfo(roomLink);
+                        JSONObject anchorInfo = mainContent.getJSONObject("roomInfoRes").getJSONObject("data").getJSONObject("anchor_info");
+                        String username = anchorInfo.getJSONObject("base_info").getStr("uname");
                         System.out.println(username + " 下播了");
                         MessagesBuilder messages = new MessagesBuilder()
                                 .append(username).append(" 下播了").append("\n")
@@ -134,7 +146,9 @@ public class LiveUtil {
                     }
                     break;
             }
-        } catch (Exception e){
+        } catch (NullPointerException ignore) {
+
+        } catch (Exception e) {
             liveFlag = false;
             throw e;
         }
