@@ -104,6 +104,7 @@ public class MyListener {
             }
         }
         if (isTarget) {
+            event.replyAsync("[ChatGPT] 我正在组织语言中，可能耗时较久，请耐心等待一下哦～");
             StringBuffer buffer = new StringBuffer();
             for (Message.Element<?> message : messages) {
                 if (message instanceof Text) {
