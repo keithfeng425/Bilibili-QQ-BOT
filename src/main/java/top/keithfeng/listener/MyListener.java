@@ -1,9 +1,7 @@
 package top.keithfeng.listener;
 
 
-import cn.hutool.core.util.CharsetUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONObject;
@@ -45,7 +43,7 @@ public class MyListener {
     @Value("${gpt.use-api2d}")
     private boolean useApi2d;
 
-    public String sendMessageToChatGpt(String textContent) {
+    public String sendMessageToChatGpt(String textContent, GroupMessageEvent event) {
         if (StrUtil.isEmpty(gptApiKey)) {
             log.warn("未填写ChatGPT APIKey，将调用青云客API进行回复……");
             String qykApi = "http://api.qingyunke.com/api.php?key=free&appid=0&msg=" + textContent;
@@ -53,6 +51,7 @@ public class MyListener {
             JSONObject responseBody = JSONUtil.parseObj(response.body());
             return responseBody.getStr("content");
         }
+        event.replyAsync("[ChatGPT] 我正在组织语言中，可能耗时较久，请耐心等待一下哦～");
         String apiUrl;
         if (useApi2d) {
             apiUrl = "https://openai.api2d.net/v1/chat/completions";
@@ -104,7 +103,6 @@ public class MyListener {
             }
         }
         if (isTarget) {
-            event.replyAsync("[ChatGPT] 我正在组织语言中，可能耗时较久，请耐心等待一下哦～");
             StringBuffer buffer = new StringBuffer();
             for (Message.Element<?> message : messages) {
                 if (message instanceof Text) {
@@ -113,8 +111,7 @@ public class MyListener {
                 }
             }
             String textContent = buffer.toString();
-            event.replyAsync(sendMessageToChatGpt(textContent));
-
+            event.replyAsync(sendMessageToChatGpt(textContent, event));
         }
     }
 
