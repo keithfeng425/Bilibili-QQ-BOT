@@ -21,13 +21,13 @@
         <dependency>
             <groupId>love.forte.simbot.boot</groupId>
             <artifactId>simboot-core-spring-boot-starter</artifactId>
-            <version>3.1.0</version>
+            <version>3.2.0</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>love.forte.simbot.component</groupId>
             <artifactId>simbot-component-mirai-core</artifactId>
-            <version>3.0.0.0-RC.2</version>
+            <version>3.2.0.0</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
