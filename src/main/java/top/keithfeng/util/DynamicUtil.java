@@ -27,6 +27,8 @@ import top.keithfeng.mapper.DynamicHistoryMapper;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @Component
@@ -48,7 +50,7 @@ public class DynamicUtil {
 
     static {
         try {
-            CLASS_PATH = ResourceUtils.getFile("").getAbsolutePath() + "/";
+            CLASS_PATH = ResourceUtils.getFile("").getAbsolutePath() + "/picTemp/";
         } catch (FileNotFoundException e) {
             log.error("获取工作目录失败！");
         }
@@ -98,11 +100,10 @@ public class DynamicUtil {
             Timestamp timestamp = new Timestamp(time);
             String datetime = DateUtil.format(timestamp, "yyyy-MM-dd HH:mm:ss");
             JSONArray picArray = item.getJSONArray("pictures");
-            String imgSrc = null;
+            String picBasePath = CLASS_PATH + "dynamic/";
+            String mergePic = null;
             if (picArray != null) {
-                Object pictures = picArray.get(0);
-                imgSrc = ((JSONObject) pictures).getStr("img_src");
-                HttpUtil.downloadFile(imgSrc, CLASS_PATH + "dynamic.jpg");
+                mergePic = downloadAndMergePic(picArray, picBasePath);
             }
             System.out.println(username + " 于 " + datetime + " 发表了新动态：\n" + content);
 
@@ -112,9 +113,8 @@ public class DynamicUtil {
                     .append(datetime)
                     .append(" 发表了新动态：\n")
                     .append(content);
-            if (imgSrc != null) {
-                System.out.println(imgSrc);
-                FileResource imgResource = Resource.of(new File(CLASS_PATH + "dynamic.jpg"));
+            if (mergePic != null) {
+                FileResource imgResource = Resource.of(new File(picBasePath + "merge_final.jpg"));
                 messages.append("\n")
                         .image(imgResource);
             }
@@ -124,7 +124,7 @@ public class DynamicUtil {
             Messages message = messages.build();
             group.sendBlocking(message);
             // 删除临时图片
-            FileUtil.del(CLASS_PATH + "dynamic.jpg");
+            FileUtil.del(picBasePath);
             // 插入数据库
             dynamicHistoryMapper.insert(new DynamicHistory(dynamicId, "动态", message));
 
@@ -226,19 +226,15 @@ public class DynamicUtil {
                     if (originContent == null) {
                         originContent = origin.getJSONObject("item").getStr("content");
                     }
-
+                    String picBasePath = CLASS_PATH + "dynamic/";
                     JSONArray pictures = origin.getJSONObject("item").getJSONArray("pictures");
-                    String imgSrc = null;
+                    String mergePic = null;
                     if (pictures != null) {
-                        JSONObject imgObject = pictures.getJSONObject(0);
-                        imgSrc = imgObject.getStr("img_src");
+                        mergePic = downloadAndMergePic(pictures, picBasePath);
                     }
                     System.out.println(username + " 于 " + datetime + " 转发了 " + originName + " 的动态：");
                     System.out.println(originContent);
                     System.out.println("UP主留言：" + content);
-                    if (pictures != null) {
-                        System.out.println(imgSrc);
-                    }
 
                     MessagesBuilder messages = new MessagesBuilder()
                             .append(username)
@@ -254,18 +250,17 @@ public class DynamicUtil {
                             .append(content)
                             .append("\n");
 
-                    if (pictures != null) {
-                        HttpUtil.downloadFile(imgSrc, CLASS_PATH + "dynamic.jpg");
-                        FileResource imgResource = Resource.of(new File(CLASS_PATH + "dynamic.jpg"));
-                        messages.image(imgResource)
-                                .append("\n");
+                    if (mergePic != null) {
+                        FileResource imgResource = Resource.of(new File(picBasePath + "merge_final.jpg"));
+                        messages.append("\n")
+                                .image(imgResource);
                     }
                     messages.append(dynamicLink);
                     Messages message = messages.build();
                     group.sendBlocking(message);
                     if (pictures != null) {
                         // 删除临时图片
-                        FileUtil.del(CLASS_PATH + "dynamic.jpg");
+                        FileUtil.del(picBasePath);
                     }
                     // 插入数据库
                     dynamicHistoryMapper.insert(new DynamicHistory(dynamicId, "转发动态", message));
@@ -393,5 +388,94 @@ public class DynamicUtil {
 
         }
         System.out.println(dynamicLink);
+    }
+
+    private String downloadAndMergePic(JSONArray picArray, String picBasePath) {
+        List<String> imgList = new ArrayList<>(3);
+
+        for (int i = 0; i < picArray.size(); i++) {
+            JSONObject pic = (JSONObject) picArray.get(i);
+            String imgSrc = pic.getStr("img_src") + "@640w_640h_2c";
+            HttpUtil.downloadFile(imgSrc, picBasePath + "dynamic_" + i + ".jpg");
+        }
+
+        if (picArray.size() == 1) {
+            imgList.add(picBasePath + "dynamic_1.jpg");
+        } else if (picArray.size() >= 2 && picArray.size() <= 3) {
+
+            List<String> mergeList1 = new ArrayList<>(3);
+            for (int i = 0; i < picArray.size(); i++) {
+                mergeList1.add(picBasePath + "dynamic_" + i + ".jpg");
+            }
+            PictureMergeUtil.merge(mergeList1, picBasePath + "merge_1.jpg", true);
+            imgList.add(picBasePath + "merge_1.jpg");
+        } else if (picArray.size() == 4) {
+
+            List<String> mergeList1 = new ArrayList<>(3);
+            for (int i = 0; i < 2; i++) {
+                mergeList1.add(picBasePath + "dynamic_" + i + ".jpg");
+            }
+            PictureMergeUtil.merge(mergeList1, picBasePath + "merge_1.jpg", true);
+            imgList.add(picBasePath + "merge_1.jpg");
+            List<String> mergeList2 = new ArrayList<>(3);
+            for (int i = 2; i < 4; i++) {
+                mergeList2.add(picBasePath + "dynamic_" + i + ".jpg");
+            }
+            PictureMergeUtil.merge(mergeList2, picBasePath + "merge_2.jpg", true);
+            imgList.add(picBasePath + "merge_2.jpg");
+        } else if (picArray.size() >= 5 && picArray.size() <= 6) {
+
+            List<String> mergeList1 = new ArrayList<>(3);
+            for (int i = 0; i < 3; i++) {
+                mergeList1.add(picBasePath + "dynamic_" + i + ".jpg");
+            }
+            PictureMergeUtil.merge(mergeList1, picBasePath + "merge_1.jpg", true);
+            imgList.add(picBasePath + "merge_1.jpg");
+            List<String> mergeList2 = new ArrayList<>(3);
+            for (int i = 3; i < picArray.size(); i++) {
+                mergeList2.add(picBasePath + "dynamic_" + i + ".jpg");
+            }
+            PictureMergeUtil.merge(mergeList2, picBasePath + "merge_2.jpg", true);
+            imgList.add(picBasePath + "merge_2.jpg");
+        } else if (picArray.size() == 7) {
+
+            List<String> mergeList1 = new ArrayList<>(3);
+            for (int i = 0; i < 3; i++) {
+                mergeList1.add(picBasePath + "dynamic_" + i + ".jpg");
+            }
+            PictureMergeUtil.merge(mergeList1, picBasePath + "merge_1.jpg", true);
+            imgList.add(picBasePath + "merge_1.jpg");
+            List<String> mergeList2 = new ArrayList<>(3);
+            for (int i = 3; i < 6; i++) {
+                mergeList2.add(picBasePath + "dynamic_" + i + ".jpg");
+            }
+            PictureMergeUtil.merge(mergeList2, picBasePath + "merge_2.jpg", true);
+            imgList.add(picBasePath + "merge_2.jpg");
+            imgList.add(picBasePath + "dynamic_6.jpg");
+        } else if (picArray.size() >= 8 && picArray.size() <= 9) {
+
+            List<String> mergeList1 = new ArrayList<>(3);
+            for (int i = 0; i < 3; i++) {
+                mergeList1.add(picBasePath + "dynamic_" + i + ".jpg");
+            }
+            PictureMergeUtil.merge(mergeList1, picBasePath + "merge_1.jpg", true);
+            imgList.add(picBasePath + "merge_1.jpg");
+            List<String> mergeList2 = new ArrayList<>(3);
+            for (int i = 3; i < 6; i++) {
+                mergeList2.add(picBasePath + "dynamic_" + i + ".jpg");
+            }
+            PictureMergeUtil.merge(mergeList2, picBasePath + "merge_2.jpg", true);
+            imgList.add(picBasePath + "merge_2.jpg");
+            List<String> mergeList3 = new ArrayList<>(3);
+            for (int i = 6; i < picArray.size(); i++) {
+                mergeList3.add(picBasePath + "dynamic_" + i + ".jpg");
+            }
+            PictureMergeUtil.merge(mergeList3, picBasePath + "merge_3.jpg", true);
+            imgList.add(picBasePath + "merge_3.jpg");
+        }
+
+        PictureMergeUtil.merge(imgList, picBasePath + "merge_final.jpg", false);
+
+        return picBasePath + "merge_final.jpg";
     }
 }
