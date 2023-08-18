@@ -2,10 +2,12 @@ package top.keithfeng;
 
 import love.forte.simboot.spring.autoconfigure.EnableSimbot;
 import love.forte.simbot.bot.OriginBotManager;
+import net.mamoe.mirai.utils.BotConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import xyz.cssxsh.mirai.tool.FixProtocolVersion;
 
 /**
  * 程序入口。
@@ -35,6 +37,7 @@ public class MainApplication {
      * main方法，启动Spring应用程序。
      */
     public static void main(String[] args) {
+        FixProtocolVersion.fetch(BotConfiguration.MiraiProtocol.ANDROID_PHONE, "8.9.63");
         SpringApplication.run(MainApplication.class, args);
         System.out.println("\n" +
                 " __  ___  _______  __  .___________. __    __  \n" +

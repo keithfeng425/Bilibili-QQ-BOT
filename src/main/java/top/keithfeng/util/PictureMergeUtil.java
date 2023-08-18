@@ -22,7 +22,7 @@ public class PictureMergeUtil {
      * @param fileUrls 本地地址路径
      * @param savePath 拼接图片存放路径
      * @param isHorizontal 是否是水平拼接
-     * true:是(水平拼接)  flase:否(竖直拼接)
+     * true:是(水平拼接)  false:否(竖直拼接)
      * @return void
      * @author gx
      * @date 2022/1/6 14:39:22

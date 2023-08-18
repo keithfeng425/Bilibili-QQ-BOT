@@ -12,6 +12,7 @@ import love.forte.simbot.ID;
 import love.forte.simbot.bot.Bot;
 import love.forte.simbot.bot.OriginBotManager;
 import love.forte.simbot.definition.Group;
+import love.forte.simbot.message.AtAll;
 import love.forte.simbot.message.Messages;
 import love.forte.simbot.message.MessagesBuilder;
 import love.forte.simbot.resources.FileResource;
@@ -42,6 +43,9 @@ public class DynamicUtil {
 
     @Value("${bilibili.group}")
     private Long groupId;
+
+    @Value("${notify-all.dynamic}")
+    private boolean notifyAll;
 
     @Autowired
     private OriginBotManager botManager;
@@ -121,6 +125,9 @@ public class DynamicUtil {
 
             messages.append("\n")
                     .append(dynamicLink);
+            if (notifyAll) {
+                messages.append(" \n").append(AtAll.INSTANCE);
+            }
             Messages message = messages.build();
             group.sendBlocking(message);
             // 删除临时图片
@@ -132,6 +139,7 @@ public class DynamicUtil {
             String title = cardObject.getStr("title");
             String desc = cardObject.getStr("desc");
             String dynamic = cardObject.getStr("dynamic");
+            String videoLink = cardObject.getStr("short_link_v2");
             JSONObject owner = cardObject.getJSONObject("owner");
             if (owner != null) {
                 String username = owner.getStr("name");
@@ -160,7 +168,12 @@ public class DynamicUtil {
                         .append("\n")
                         .append(dynamic)
                         .append("\n")
+                        .append(videoLink)
+                        .append("\n")
                         .image(imgResource);
+                if (notifyAll) {
+                    messages.append(" \n").append(AtAll.INSTANCE);
+                }
                 Messages message = messages.build();
                 group.sendBlocking(message);
                 // 删除临时图片
@@ -198,6 +211,9 @@ public class DynamicUtil {
                         .image(imgResource)
                         .append("\n")
                         .append(dynamicLink);
+                if (notifyAll) {
+                    messages.append(" \n").append(AtAll.INSTANCE);
+                }
                 Messages message = messages.build();
                 group.sendBlocking(message);
                 // 删除临时图片
@@ -256,6 +272,9 @@ public class DynamicUtil {
                                 .image(imgResource);
                     }
                     messages.append(dynamicLink);
+                    if (notifyAll) {
+                        messages.append(" \n").append(AtAll.INSTANCE);
+                    }
                     Messages message = messages.build();
                     group.sendBlocking(message);
                     if (pictures != null) {
@@ -295,6 +314,9 @@ public class DynamicUtil {
                                 .append(roomLink)
                                 .append("\n")
                                 .image(imgResource);
+                        if (notifyAll) {
+                            messages.append(" \n").append(AtAll.INSTANCE);
+                        }
                         Messages message = messages.build();
                         group.sendBlocking(message);
                         // 删除临时图片
@@ -335,6 +357,9 @@ public class DynamicUtil {
                         messages.image(imgResource)
                                 .append("\n")
                                 .append(dynamicLink);
+                        if (notifyAll) {
+                            messages.append(" \n").append(AtAll.INSTANCE);
+                        }
                         Messages message = messages.build();
                         group.sendBlocking(message);
                         // 删除临时图片
@@ -372,12 +397,15 @@ public class DynamicUtil {
                         .append(desc)
                         .append("\n")
                         .append(videoLink)
-                        .append("\n")
+                        .append(" \n")
                         .append("UP主留言：")
                         .append(content)
                         .append("\n")
                         .image(imgResource)
                         .append(dynamicLink);
+                if (notifyAll) {
+                    messages.append(" \n").append(AtAll.INSTANCE);
+                }
                 Messages message = messages.build();
                 group.sendBlocking(message);
                 // 删除临时图片

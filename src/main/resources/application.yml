@@ -9,7 +9,7 @@ simbot:
 spring:
   datasource:
     driver-class-name: org.sqlite.JDBC
-#    url: jdbc:sqlite:E:/GitProject/Bilibili-QQ-BOT/src/main/resources/db/test.db
+#    url: jdbc:sqlite:E:/GitProject/Bilibili-QQ-BOT/src/main/resources/db/history.db
     url: jdbc:sqlite::resource:db/history.db
 
 mybatis:
@@ -25,6 +25,15 @@ bilibili:
   uid: 1566071
   group: 1030444096
   room: 28464
+
+# 设置何时@全体成员
+notify-all:
+  # 动态
+  dynamic: false
+  # 开播提醒
+  live-on: true
+  # 下播提醒
+  live-off: false
 
 # ChatGPT APIKey
 gpt:

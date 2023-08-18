@@ -35,6 +35,12 @@ public class LiveUtil {
     @Value("${bilibili.room}")
     private Long roomId;
 
+    @Value("${notify-all.live-on}")
+    private boolean notifyAllOn;
+
+    @Value("${notify-all.live-off}")
+    private boolean notifyAllOff;
+
     @Autowired
     private OriginBotManager botManager;
 
@@ -111,6 +117,9 @@ public class LiveUtil {
                                 .append(areaName)
                                 .append(" ")
                                 .append(title);
+                        if (notifyAllOn) {
+                            messages.append(" ").append(AtAll.INSTANCE);
+                        }
 
                         // 下载封面
                         HttpUtil.downloadFile(imgSrc, CLASS_PATH + "cover.jpg");
@@ -118,9 +127,8 @@ public class LiveUtil {
                         messages.append("\n")
                                 .image(imgResource)
                                 .append("\n")
-                                .append(roomLink)
-                                .append("\n")
-                                .append(AtAll.INSTANCE);
+                                .append(roomLink);
+
                         Messages message = messages.build();
                         group.sendBlocking(message);
                         // 删除临时图片
@@ -139,8 +147,10 @@ public class LiveUtil {
                         String username = anchorInfo.getJSONObject("base_info").getStr("uname");
                         System.out.println(username + " 下播了");
                         MessagesBuilder messages = new MessagesBuilder()
-                                .append(username).append(" 下播了").append("\n")
-                                .append(AtAll.INSTANCE);
+                                .append(username).append(" 下播了");
+                        if (notifyAllOff) {
+                            messages.append(" ").append(AtAll.INSTANCE);
+                        }
                         Messages message = messages.build();
                         group.sendBlocking(message);
                     }
