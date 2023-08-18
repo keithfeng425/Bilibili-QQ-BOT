@@ -9,15 +9,25 @@
 
 4. 打开`my-bot.bot.json`，将`code`替换为机器人的QQ号，`passwordInfo -> text`修改为机器人的登录密码（若担心明文不安全，可参考[官方教程](https://component-mirai.simbot.forte.love/docs/bot-config/)改用MD5存储密码）；其余配置选项默认不需更改，若要修改，请同样参照上方的官方教程
 
-5. 解压后在资源管理器顶部的地址栏中输入`CMD`（不区分大小写），或在空白处右键选择`在终端中打开(T)`，然后输入`java -jar simbot-bilibili-1.7.jar`，回车键运行
+5. 解压后在资源管理器顶部的地址栏中输入`CMD`（不区分大小写），或在空白处右键选择`在终端中打开(T)`，然后输入`unidbg-fetch-qsign-1.1.7\bin\unidbg-fetch-qsign.bat --basePath=txlib\8.9.63`，不要关闭该窗口
 
-6. 由于QQ在新设备登录时需要滑动图块和短信进行验证，请参考文章[qq机器人如何滑动验证码验证TxCaptchaHelper](https://blog.csdn.net/dqfe123/article/details/126757443)获取验证token
+6. 在资源管理器顶部的地址栏中输入`CMD`（不区分大小写），或在空白处右键选择`在终端中打开(T)`，打开新的命令行/终端，输入`java -jar simbot-bilibili-2.0.jar`，回车键运行
+
+7. 由于QQ在新设备登录时需要滑动图块和短信进行验证，请参考文章[qq机器人如何滑动验证码验证TxCaptchaHelper](https://blog.csdn.net/dqfe123/article/details/126757443)获取验证token
 
 #### 常见问题：
 1. 控制台出现大量报错，重启程序后提示QQ版本过低，需要升级？
 
-  出现此类提示说明当前使用的QQ号被tx列入风险管控名单了，tx一直在打压各类QQ机器人，除了换号目前作者也没找到更好的方法，实在抱歉……
+  出现此类提示说明当前使用的QQ号被tx列入风险管控名单了，tx一直在打压各类QQ机器人，可以参考上方第5步部署本地第三方签名服务，即可正常使用
 
 2. 设置了直播间订阅，但是没有发送开播和下播通知？
 
   请在群里为机器人设置管理员身份，因为开播和下播通知需要使用`@全体成员`功能
+
+#### 写给开发人员：
+1. 由于上方常见问题1所述，目前需要部署第三方签名服务才可正常实现QQ机器人的登录，需要借助临时性协议修复插件`fix-protocol-version`，但该插件未登陆Maven，所以开发前需要手动执行以下代码导入到本地Maven库：
+```shell
+mvn install:install-file -Dfile=fix-protocol-version-1.10.0.mirai2.jar -DgroupId=cssxsh -DartifactId=fix-protocol-version -Dversion=1.10.0.mirai2 -Dpackaging=jar
+```
+
+##### 有其他任何问题或功能方面的改进意见，欢迎提交Issues联系作者

@@ -74,6 +74,11 @@
             <artifactId>async-http-client</artifactId>
             <version>2.12.3</version>
         </dependency>
+        <dependency>
+            <groupId>cssxsh</groupId>
+            <artifactId>fix-protocol-version</artifactId>
+            <version>1.10.0.mirai2</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
