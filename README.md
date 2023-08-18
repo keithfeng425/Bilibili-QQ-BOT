@@ -3,7 +3,7 @@
 
 1. 打开Release，下载最新版本的压缩包
 
-2. 打开`application.yml`文件，将底部的`uid`替换为要订阅的主播uid，`group`修改为机器人推送的QQ群，`room`修改为订阅的直播间号码
+2. 打开`application.yml`文件，将底部的`uid`替换为要订阅的主播uid，`group`修改为机器人推送的QQ群，`room`修改为订阅的直播间号码，并在`notify-all`下配置抓取到UP新动态及直播开播/下播时是否要@全体成员（true为开启@全体成员，false为关闭@全体成员）
 
 3. 如果需要启用机器人聊天功能，请先申请[OpenID](https://platform.openai.com/)或[API2D](https://api2d.com/wiki/doc)的API Key，填写在`application.yml`文件底部的`api-key`中，如果使用API2D作代理的话还需将上方`use-api2d`改为`true`，若网络环境可以直接打开ChatGPT则该选项置为`false`；由于GPT生成回答时间较长，当答案文本过长时会超时，所以请尽量控制提问时限制回答的字数（该功能仅用于学习研究，有被QQ封禁的危险，使用时还请注意）
 
