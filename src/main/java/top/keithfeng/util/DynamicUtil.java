@@ -428,7 +428,7 @@ public class DynamicUtil {
         }
 
         if (picArray.size() == 1) {
-            imgList.add(picBasePath + "dynamic_1.jpg");
+            imgList.add(picBasePath + "dynamic_0.jpg");
         } else if (picArray.size() >= 2 && picArray.size() <= 3) {
 
             List<String> mergeList1 = new ArrayList<>(3);
