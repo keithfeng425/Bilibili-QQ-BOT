@@ -30,4 +30,9 @@
 mvn install:install-file -Dfile=fix-protocol-version-1.10.0.mirai2.jar -DgroupId=cssxsh -DartifactId=fix-protocol-version -Dversion=1.10.0.mirai2 -Dpackaging=jar
 ```
 
+#### 感谢开源项目：
+1. 临时性协议修复插件 [cssxsh / fix-protocol-version](https://github.com/cssxsh/fix-protocol-version)
+
+2. 第三方签名服务 [fuqiuluo / unidbg-fetch-qsign](https://github.com/fuqiuluo/unidbg-fetch-qsign)
+
 ##### 有其他任何问题或功能方面的改进意见，欢迎提交Issues联系作者
