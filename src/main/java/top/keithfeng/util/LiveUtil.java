@@ -24,13 +24,15 @@ import org.springframework.util.ResourceUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @Component
 public class LiveUtil {
 
     @Value("${bilibili.group}")
-    private Long groupId;
+    private String groupId;
 
     @Value("${bilibili.room}")
     private Long roomId;
@@ -75,7 +77,12 @@ public class LiveUtil {
     public void liveRoomListener() {
         try {
             Bot bot = botManager.getAnyBot();
-            Group group = bot.getGroup(ID.$(groupId));
+            String[] groupIds = groupId.split(",");
+            List<Group> groupList = new ArrayList<>(groupIds.length);
+            for (String id : groupIds) {
+                Group group = bot.getGroup(ID.$(id));
+                groupList.add(group);
+            }
 
             String liveStatusApi = "https://api.live.bilibili.com/xlive/web-room/v2/index/getRoomPlayInfo?room_id=" + roomId + "&protocol=0,1&format=0,1,2&codec=0,1&qn=0&platform=web&ptype=8&dolby=5&panorama=1";
             String response = HttpUtil.createGet(liveStatusApi)
@@ -130,7 +137,9 @@ public class LiveUtil {
                                 .append(roomLink);
 
                         Messages message = messages.build();
-                        group.sendBlocking(message);
+                        for (Group group : groupList) {
+                            group.sendBlocking(message);
+                        }
                         // 删除临时图片
                         FileUtil.del(CLASS_PATH + "cover.jpg");
                     }
@@ -152,7 +161,9 @@ public class LiveUtil {
                             messages.append(" ").append(AtAll.INSTANCE);
                         }
                         Messages message = messages.build();
-                        group.sendBlocking(message);
+                        for (Group group : groupList) {
+                            group.sendBlocking(message);
+                        }
                     }
                     break;
             }

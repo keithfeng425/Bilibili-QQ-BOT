@@ -42,7 +42,7 @@ public class DynamicUtil {
     private String uid;
 
     @Value("${bilibili.group}")
-    private Long groupId;
+    private String groupId;
 
     @Value("${notify-all.dynamic}")
     private boolean notifyAll;
@@ -64,7 +64,13 @@ public class DynamicUtil {
     @Scheduled(fixedDelay = 3000)
     public void bilibiliListener() {
         Bot bot = botManager.getAnyBot();
-        Group group = bot.getGroup(ID.$(groupId));
+
+        String[] groupIds = groupId.split(",");
+        List<Group> groupList = new ArrayList<>(groupIds.length);
+        for (String id : groupIds) {
+            Group group = bot.getGroup(ID.$(id));
+            groupList.add(group);
+        }
 
         String spaceApi = "https://api.vc.bilibili.com/dynamic_svr/v1/dynamic_svr/space_history?host_uid=" + uid + "&need_top=0";
         String response = HttpUtil.createGet(spaceApi)
@@ -129,7 +135,9 @@ public class DynamicUtil {
                 messages.append(" \n").append(AtAll.INSTANCE);
             }
             Messages message = messages.build();
-            group.sendBlocking(message);
+            for (Group group : groupList) {
+                group.sendBlocking(message);
+            }
             // 删除临时图片
             FileUtil.del(picBasePath);
             // 插入数据库
@@ -175,7 +183,9 @@ public class DynamicUtil {
                     messages.append(" \n").append(AtAll.INSTANCE);
                 }
                 Messages message = messages.build();
-                group.sendBlocking(message);
+                for (Group group : groupList) {
+                    group.sendBlocking(message);
+                }
                 // 删除临时图片
                 FileUtil.del(CLASS_PATH + "cover.jpg");
                 // 插入数据库
@@ -215,7 +225,9 @@ public class DynamicUtil {
                     messages.append(" \n").append(AtAll.INSTANCE);
                 }
                 Messages message = messages.build();
-                group.sendBlocking(message);
+                for (Group group : groupList) {
+                    group.sendBlocking(message);
+                }
                 // 删除临时图片
                 FileUtil.del(CLASS_PATH + "column.jpg");
                 // 插入数据库
@@ -276,7 +288,9 @@ public class DynamicUtil {
                         messages.append(" \n").append(AtAll.INSTANCE);
                     }
                     Messages message = messages.build();
-                    group.sendBlocking(message);
+                    for (Group group : groupList) {
+                        group.sendBlocking(message);
+                    }
                     if (pictures != null) {
                         // 删除临时图片
                         FileUtil.del(picBasePath);
@@ -318,7 +332,9 @@ public class DynamicUtil {
                             messages.append(" \n").append(AtAll.INSTANCE);
                         }
                         Messages message = messages.build();
-                        group.sendBlocking(message);
+                        for (Group group : groupList) {
+                            group.sendBlocking(message);
+                        }
                         // 删除临时图片
                         FileUtil.del(CLASS_PATH + "cover.jpg");
                         // 插入数据库
@@ -361,7 +377,9 @@ public class DynamicUtil {
                             messages.append(" \n").append(AtAll.INSTANCE);
                         }
                         Messages message = messages.build();
-                        group.sendBlocking(message);
+                        for (Group group : groupList) {
+                            group.sendBlocking(message);
+                        }
                         // 删除临时图片
                         FileUtil.del(CLASS_PATH + "column.jpg");
                         // 插入数据库
@@ -407,13 +425,14 @@ public class DynamicUtil {
                     messages.append(" \n").append(AtAll.INSTANCE);
                 }
                 Messages message = messages.build();
-                group.sendBlocking(message);
+                for (Group group : groupList) {
+                    group.sendBlocking(message);
+                }
                 // 删除临时图片
                 FileUtil.del(CLASS_PATH + "repost.jpg");
                 // 插入数据库
                 dynamicHistoryMapper.insert(new DynamicHistory(dynamicId, "转发投稿", message));
             }
-
         }
         System.out.println(dynamicLink);
     }
