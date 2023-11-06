@@ -11,7 +11,7 @@
 
 5. 解压后在资源管理器顶部的地址栏中输入`CMD`（不区分大小写），或在空白处右键选择`在终端中打开(T)`，然后输入`unidbg-fetch-qsign-1.1.7\bin\unidbg-fetch-qsign.bat --basePath=unidbg-fetch-qsign-1.1.7\txlib\8.9.63`，不要关闭该窗口
 
-6. 在资源管理器顶部的地址栏中输入`CMD`（不区分大小写），或在空白处右键选择`在终端中打开(T)`，打开新的命令行/终端，输入`java -jar simbot-bilibili-2.0.jar`，回车键运行
+6. 在资源管理器顶部的地址栏中输入`CMD`（不区分大小写），或在空白处右键选择`在终端中打开(T)`，打开新的命令行/终端，输入`java -jar simbot-bilibili-2.1.jar`，回车键运行
 
 7. 由于QQ在新设备登录时需要滑动图块和短信进行验证，请参考文章[qq机器人如何滑动验证码验证TxCaptchaHelper](https://blog.csdn.net/dqfe123/article/details/126757443)获取验证token
 
